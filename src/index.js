@@ -1,17 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import { setupWorker, rest } from "msw";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+const worker = setupWorker(
+  rest.get("/hello", (req, res, ctx) => {
+    return res(ctx.json({ name: "test" }));
+  })
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const renderApp = () =>
+  worker.start().then(() => {
+    worker.printHandlers();
+    ReactDOM.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+      document.getElementById("root")
+    );
+  });
+
+renderApp();
